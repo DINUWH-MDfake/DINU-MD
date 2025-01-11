@@ -1,36 +1,57 @@
-const {
-default: makeWASocket,
-useMultiFileAuthState,
-DisconnectReason,
-jidNormalizedUser,
-getContentType,
-fetchLatestBaileysVersion,
-Browsers
-} = require('@whiskeysockets/baileys')
+const { default: makeWASocket, useMultiFileAuthState } = require('@adiwajshing/baileys');
+const fs = require('fs');
+const { botName, prefix, ownerNumber, welcomeMessage, sessionId } = require('./config.js');
 
-const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
-const fs = require('fs')
-const P = require('pino')
-const config = require('./config')
-const qrcode = require('qrcode-terminal')
-const util = require('util')
-const { sms,downloadMediaMessage } = require('./lib/msg')
-const axios = require('axios')
-const { File } = require('megajs')
-const prefix = '.'
+// Bot Start Function
+const startBot = async () => {
+  // Auth State setup
+  const { state, saveCreds } = await useMultiFileAuthState(`./auth_info/${sessionId}`);
+  
+  // Create socket for WhatsApp
+  const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: true,  // Print the QR Code to scan with your phone
+    logger: require('pino')({ level: 'info' })
+  });
 
-const ownerNumber = ['94720244981']
+  // Connection update listener
+  sock.ev.on('connection.update', (update) => {
+    const { connection } = update;
+    if (connection === 'open') {
+      console.log(`${botName} connected successfully!`);
+    }
+  });
 
-//===================SESSION-AUTH============================
-if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
-if(!config.SESSION_ID) return console.log('Please add your session to SESSION_ID env !!')
-const sessdata = config.SESSION_ID
-const filer = File.fromURL(`https://mega.nz/file/${sessdata}`)
-filer.download((err, data) => {
-if(err) throw err
-fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
-console.log("Session added✅")
-})})}
+  // Message listener
+  sock.ev.on('messages.upsert', async (messageUpdate) => {
+    const message = messageUpdate.messages[0];
+    if (!message.key.fromMe && message.message) {
+      const sender = message.key.remoteJid;
+      const text = message.message.conversation || '';
 
-const express = require("express");
-const app = express();
+      // Respond to help command
+      if (text.toLowerCase() === `${prefix}help`) {
+        await sock.sendMessage(sender, { text: welcomeMessage });
+      }
+
+      // Respond to ping command
+      if (text.toLowerCase() === `${prefix}ping`) {
+        await sock.sendMessage(sender, { text: 'Pong! I am alive!' });
+      }
+
+      // Respond to owner check
+      if (text.toLowerCase() === `${prefix}owner`) {
+        if (message.key.remoteJid === ownerNumber) {
+          await sock.sendMessage(sender, { text: `Hello Owner! I'm ${botName}.` });
+        } else {
+          await sock.sendMessage(sender, { text: `You are not the owner of ${botName}.` });
+        }
+      }
+    }
+  });
+
+  // Save credentials on update
+  sock.ev.on('creds.update', saveCreds);
+};
+
+startBot();
