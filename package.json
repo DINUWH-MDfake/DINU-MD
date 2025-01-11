@@ -1,21 +1,27 @@
 {
-  "name": "social-media-downloader-bot",
+  "name": "Denuwan-md-bot",
   "version": "1.0.0",
-  "description": "Bot for downloading YouTube MP3, Facebook videos, and TikTok videos",
+  "description": "A WhatsApp bot created using Node.js",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "pm2 start index.js --deep-monitoring --attach --name Denuwan-bot",
+    "stop": "pm2 stop Denuwan-bot",
+    "restart": "pm2 restart Denuwan-bot"
   },
   "dependencies": {
-    "@adiwajshing/baileys": "^5.0.0",
-    "ytdl-core": "^4.9.1",
-    "yt-dlp": "^2023.05.12",
-    "tiktok-scraper": "^1.6.4",
-    "facebook-video-downloader": "^1.0.1",
-    "fluent-ffmpeg": "^2.1.2",
-    "axios": "^0.21.1",
-    "express": "^4.17.1"
-  },
-  "author": "Your Name",
-  "license": "MIT"
+    "@whiskeysockets/baileys": "6.6.0",
+    "@adiwajshing/keyed-db": "^0.2.4",
+    "pino": "^7.0.5",
+    "pm2": "^5.2.0",
+    "util": "^0.12.4",
+    "express": "latest",
+    "axios": "^1.2.5",
+    "file_size_url": "^1.0.4",
+    "fs-extra": "^11.1.0",
+    "path": "^0.12.7",
+    "node-fetch": "^2.6.1",
+    "megajs": "^1.1.0",
+    "vm": "^0.1.0",
+    "qrcode-terminal": "^0.12.0"
+  }
 }
