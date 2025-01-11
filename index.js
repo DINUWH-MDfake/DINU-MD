@@ -1,57 +1,61 @@
-const { default: makeWASocket, useMultiFileAuthState } = require('@adiwajshing/baileys');
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@adiwajshing/baileys');
+const express = require('express');
 const fs = require('fs');
-const { botName, prefix, ownerNumber, welcomeMessage, sessionId } = require('./config.js');
 
-// Bot Start Function
-const startBot = async () => {
-  // Auth State setup
-  const { state, saveCreds } = await useMultiFileAuthState(`./auth_info/${sessionId}`);
-  
-  // Create socket for WhatsApp
-  const sock = makeWASocket({
-    auth: state,
-    printQRInTerminal: true,  // Print the QR Code to scan with your phone
-    logger: require('pino')({ level: 'info' })
-  });
+// Session file path
+const sessionFile = './session.json';
 
-  // Connection update listener
-  sock.ev.on('connection.update', (update) => {
-    const { connection } = update;
-    if (connection === 'open') {
-      console.log(`${botName} connected successfully!`);
-    }
-  });
+// Create Express server
+const app = express();
+app.get('/', (req, res) => {
+    res.send('WhatsApp Bot is Running!');
+});
 
-  // Message listener
-  sock.ev.on('messages.upsert', async (messageUpdate) => {
-    const message = messageUpdate.messages[0];
-    if (!message.key.fromMe && message.message) {
-      const sender = message.key.remoteJid;
-      const text = message.message.conversation || '';
+// Initialize WhatsApp bot
+async function startBot() {
+    const { state, saveState } = useSingleFileAuthState(sessionFile);
+    
+    const sock = makeWASocket({
+        printQRInTerminal: true,
+        auth: state
+    });
 
-      // Respond to help command
-      if (text.toLowerCase() === `${prefix}help`) {
-        await sock.sendMessage(sender, { text: welcomeMessage });
-      }
+    // Save session state to file
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect } = update;
 
-      // Respond to ping command
-      if (text.toLowerCase() === `${prefix}ping`) {
-        await sock.sendMessage(sender, { text: 'Pong! I am alive!' });
-      }
-
-      // Respond to owner check
-      if (text.toLowerCase() === `${prefix}owner`) {
-        if (message.key.remoteJid === ownerNumber) {
-          await sock.sendMessage(sender, { text: `Hello Owner! I'm ${botName}.` });
-        } else {
-          await sock.sendMessage(sender, { text: `You are not the owner of ${botName}.` });
+        if (connection === 'close') {
+            console.log('Connection lost, reconnecting...');
+            startBot(); // Reconnect if disconnected
+        } else if (connection === 'open') {
+            console.log('Bot connected successfully!');
         }
-      }
-    }
-  });
 
-  // Save credentials on update
-  sock.ev.on('creds.update', saveCreds);
-};
+        if (lastDisconnect?.error?.output?.statusCode === DisconnectReason.loggedOut) {
+            console.log('You are logged out, please scan QR again.');
+        }
 
+        // Save state on every update
+        saveState();
+    });
+
+    // Respond to incoming messages
+    sock.ev.on('messages.upsert', async ({ messages, type }) => {
+        const msg = messages[0];
+        console.log('Received message: ', msg);
+
+        if (msg?.message?.conversation === 'ping') {
+            await sock.sendMessage(msg.key.remoteJid, { text: 'Pong!' });
+        }
+    });
+
+    return sock;
+}
+
+// Start the bot
 startBot();
+
+// Start Express server
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+});
