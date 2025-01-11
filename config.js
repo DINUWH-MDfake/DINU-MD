@@ -1,13 +1,11 @@
+const fs = require('fs');
+if (fs.existsSync('config.env')) require('dotenv').config({ path: './config.env' });
+
+function convertToBool(text, fault = 'true') {
+    return text === fault ? true : false;
+}
 module.exports = {
-  // WhatsApp session configuration
-  sessionFile: './session.json',  // Path to save session file
-
-  // Owner's WhatsApp number
-  ownerNumber: 'YOUR_PHONE_NUMBER',  // Replace with your phone number
-
-  // Bot API keys (If any)
-  apiKey: 'YOUR_API_KEY',  // Replace with any API key if needed
-  
-  // Custom configuration (optional)
-  botName: 'WhatsAppBot', // Bot's name
+SESSION_ID: process.env.SESSION_ID,
+ALIVE_IMG: process.env.ALIVE_IMG || "https://i.ibb.co/k1RH9bH/1086.jpg",
+ALIVE_MSG: process.env.ALIVE_MSG || "Hi.i am Denuwan md whatsapp bot, iam alive new",
 };
