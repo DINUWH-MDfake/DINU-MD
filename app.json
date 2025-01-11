@@ -1,31 +1,42 @@
 {
-  "name": "YourBot",
-  "description": "Javascript WhatsApp bot made by YourName",
-  "logo": "https://telegra.ph/file/ad25b2227fa2a1a01b707.jpg",
-  "keywords": ["bot"],
-  "success_url": "/",
-
+  "name": "whatsapp-downloader-bot",
+  "description": "WhatsApp bot for downloading YouTube MP3, Facebook, and TikTok videos",
+  "repository": "https://github.com/yourusername/your-repo-name",
+  "logo": "https://path-to-your-logo.com/logo.png",
+  "keywords": ["whatsapp", "bot", "downloader", "youtube", "tiktok", "facebook"],
   "env": {
     "SESSION_ID": {
-      "description": "Put the session-id here.",
-      "required": true
-    },  
-
-    "ALIVE_IMG": {
-      "description": "Put your alive img here.",
-      "required": true
+      "description": "Your WhatsApp session ID",
+      "value": "whatsapp_session"
     },
-    
-    "ALIVE_MSG": {
-      "description": "Put your alive msg here.",
-      "required": true
-    }   
-},
-
-     "buildpacks": [
-        {
-            "url": "https://github.com/heroku/heroku-buildpack-nodejs.git"
-        }
-     ],
-  "stack": "heroku-24"
+    "PREFIX": {
+      "description": "Command prefix for the bot",
+      "value": "!"
+    },
+    "BOT_NAME": {
+      "description": "The name of your WhatsApp bot",
+      "value": "MyDownloadBot"
+    },
+    "OWNER_NUMBER": {
+      "description": "Your WhatsApp number for bot admin",
+      "value": "1234567890"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "npm install"
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": [
+    "heroku-postgresql"
+  ]
 }
