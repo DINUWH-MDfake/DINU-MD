@@ -1,0 +1,38 @@
+name: Deploy to Heroku
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch (e.g. 'main' or 'master')
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Specify the version of Node.js you are using (e.g., '14')
+
+      - name: Install dependencies
+        run: |
+          npm install --legacy-peer-deps  # Install dependencies; use '--legacy-peer-deps' to handle peer dependency conflicts
+
+      - name: Build and Test
+        run: |
+          npm run build  # If you have a build script, use it here
+          npm test  # If you have tests, run them here
+
+      - name: Deploy to Heroku
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          echo "heroku login"
+          echo "$HEROKU_API_KEY" | heroku auth:token
+          git remote add heroku https://git.heroku.com/<your-heroku-app-name>.git
+          git push heroku main
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
