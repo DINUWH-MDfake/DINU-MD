@@ -1,30 +1,35 @@
 {
-  "name": "Denuwan-md-bot",
+  "name": "your-bot-name",
   "version": "1.0.0",
-  "description": "A WhatsApp bot created using Node.js",
-  "main": "index.js",
+  "description": "A simple bot",
+  "main": "bot.js",  // ඔබගේ bot entry point file එක
   "scripts": {
-    "start": "pm2 start index.js --deep-monitoring --attach --name Denuwan-bot",
-    "stop": "pm2 stop Denuwan-bot",
-    "restart": "pm2 restart Denuwan-bot"
+    "start": "node bot.js",  // bot.js එක අරඹන start script එක
+    "dev": "nodemon bot.js"  // development mode සඳහා nodemon
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "6.6.0",
-    "@adiwajshing/keyed-db": "^0.2.4",
-    "pino": "^7.0.5",
-    "pm2": "^5.2.0",
-    "util": "^0.12.4",
-    "express": "latest",
-    "axios": "^1.2.5",
-    "file_size_url": "^1.0.4",
-    "fs-extra": "^11.1.0",
-    "path": "^0.12.7",
-    "node-fetch": "^2.6.1",
-    "megajs": "^1.1.0",
-    "vm": "^0.1.0",
-    "qrcode-terminal": "^0.12.0"
-    "scripts": {
-    "start": "node yourBotFile.js"
-  }
-  }
+    "discord.js": "^14.0.0",  // Example dependency, replace with your bot's requirements
+    "express": "^4.17.1"       // Web framework (optional), remove if not needed
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"  // Development tool for auto-restarting the bot
+  },
+  "engines": {
+    "node": "14.x"  // Node.js version (Heroku or Codespaces compatibility)
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/your-repo-name.git"
+  },
+  "keywords": [
+    "bot",
+    "discord",
+    "nodejs"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yourusername/your-repo-name/issues"
+  },
+  "homepage": "https://github.com/yourusername/your-repo-name#readme"
 }
