@@ -1,0 +1,33 @@
+name: Deploy to Heroku
+
+on:
+  push:
+    branches:
+      - main  # 'main' branch එකට push වුණාම workflow එක ක්‍රියා කරයි.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Node.js version එක
+
+    - name: Install dependencies
+      run: |
+        npm install  # npm dependencies install කිරීම
+
+    - name: Heroku Login
+      uses: akshnz/heroku-login-action@v1.1.2
+      with:
+        api_key: ${{ secrets.HEROKU_API_KEY }}  # Heroku API key එක set කරන්න (secrets)
+
+    - name: Push to Heroku
+      run: |
+        git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+        git push heroku main  # Heroku server එකට deploy කිරීම
