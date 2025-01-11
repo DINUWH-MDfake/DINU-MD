@@ -1,40 +1,38 @@
-const { exec } = require('child_process');
-const ytdl = require('ytdl-core');
-const TikTokScraper = require('tiktok-scraper');
-const FacebookDownloader = require('facebook-video-downloader');
-const fs = require('fs');
+const { fetchLatestBaileysVersion } = require('@adiwajshing/baileys');
+const { default: makeWASocket } = require('@adiwajshing/baileys');
+const config = require('./config.js');
 
-// Commands Handlers
-const handleCommands = async (sock, message) => {
-    const sender = message.key.remoteJid;
-    const text = message.message.conversation || '';
-    
-    // Command prefix (adjust it if needed)
-    const prefix = '!';
+// Handle incoming messages and commands
+async function handleCommands(sock, msg) {
+  const messageContent = msg?.message?.conversation;
+  const sender = msg.key.remoteJid;
 
-    // YouTube MP3 Download Command
-    if (text.toLowerCase().startsWith(`${prefix}download yt`)) {
-        const url = text.split(' ')[1]; // Extract the YouTube URL
-        if (!url) {
-            await sock.sendMessage(sender, { text: 'Please provide a YouTube URL.' });
-            return;
-        }
-        try {
-            const info = await ytdl.getInfo(url);
-            const audio = ytdl(url, { filter: 'audioonly' });
-            await sock.sendMessage(sender, { text: `Downloading YouTube MP3: ${info.videoDetails.title}` });
-            audio.pipe(fs.createWriteStream(`${info.videoDetails.title}.mp3`));  // Save file locally
-        } catch (error) {
-            await sock.sendMessage(sender, { text: 'Error downloading YouTube MP3.' });
-        }
-    }
+  if (!messageContent) return;
 
-    // TikTok Video Download Command
-    if (text.toLowerCase().startsWith(`${prefix}download tiktok`)) {
-        const url = text.split(' ')[1]; // Extract the TikTok URL
-        if (!url) {
-            await sock.sendMessage(sender, { text: 'Please provide a TikTok URL.' });
-            return;
+  switch (messageContent.toLowerCase()) {
+    case 'ping':
+      await sock.sendMessage(sender, { text: 'Pong!' });
+      break;
+    case 'version':
+      const { version } = await fetchLatestBaileysVersion();
+      await sock.sendMessage(sender, { text: `Baileys Version: ${version}` });
+      break;
+    case 'help':
+      const helpMessage = `
+Available Commands:
+1. *ping* - Responds with "Pong!"
+2. *version* - Fetches Baileys version
+3. *help* - Lists all available commands
+      `;
+      await sock.sendMessage(sender, { text: helpMessage });
+      break;
+    default:
+      await sock.sendMessage(sender, { text: 'Unknown command. Type *help* for available commands.' });
+      break;
+  }
+}
+
+module.exports = { handleCommands };            return;
         }
         try {
             const video = await TikTokScraper.getVideoMeta(url);
